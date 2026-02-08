@@ -90,6 +90,23 @@ class FleetVehicle(models.Model):
             ])
             vehicle.is_available = busy_slots == 0
 
+    # =========================================================
+    # AUTO-MARCAR is_driver AL ASIGNAR CONDUCTOR EN FLOTA
+    # =========================================================
+    @api.onchange('driver_id')
+    def _onchange_driver_id_mark_is_driver(self):
+        """Cuando se asigna un conductor en flota, marcarlo como is_driver."""
+        if self.driver_id and hasattr(self.driver_id, 'is_driver') and not self.driver_id.is_driver:
+            self.driver_id.sudo().write({'is_driver': True})
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'driver_id' in vals and vals['driver_id']:
+            driver = self.env['res.partner'].browse(vals['driver_id'])
+            if driver.exists() and hasattr(driver, 'is_driver') and not driver.is_driver:
+                driver.sudo().write({'is_driver': True})
+        return res
+
 
 class FleetVehiclePermit(models.Model):
     _name = 'fleet.vehicle.permit'

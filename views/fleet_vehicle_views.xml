@@ -6,6 +6,12 @@
     <field name="model">fleet.vehicle</field>
     <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
     <field name="arch" type="xml">
+
+      <!-- Asegurar que al seleccionar conductor en flota se marque is_driver -->
+      <xpath expr="//field[@name='driver_id']" position="attributes">
+        <attribute name="context">{'default_is_driver': True}</attribute>
+      </xpath>
+
       <notebook position="inside">
 
         <page string="Transporte de Residuos" name="waste_transport">

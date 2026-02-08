@@ -70,8 +70,10 @@ class ServiceOrder(models.Model):
                     self.remolque1 = v.remolque_placa_1
                 if not self.remolque2:
                     self.remolque2 = v.remolque_placa_2
-            # Auto-asignar chofer del vehículo
+            # Auto-asignar chofer del vehículo y marcarlo como is_driver
             if v.driver_id and not self.chofer_id:
+                if hasattr(v.driver_id, 'is_driver') and not v.driver_id.is_driver:
+                    v.driver_id.sudo().write({'is_driver': True})
                 self.chofer_id = v.driver_id
 
     @api.onchange('chofer_id')
