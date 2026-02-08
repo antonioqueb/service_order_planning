@@ -1,0 +1,12 @@
+<odoo>
+  <data noupdate="1">
+    <record id="group_service_planning_user" model="res.groups">
+      <field name="name">Service Planning User</field>
+      <field name="implied_ids" eval="[(4, ref('service_order.group_service_order_user'))]"/>
+    </record>
+    <record id="group_service_planning_manager" model="res.groups">
+      <field name="name">Service Planning Manager</field>
+      <field name="implied_ids" eval="[(4, ref('group_service_planning_user'))]"/>
+    </record>
+  </data>
+</odoo>

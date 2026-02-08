@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <record id="view_service_schedule_wizard_form" model="ir.ui.view">
+    <field name="name">service.schedule.wizard.form</field>
+    <field name="model">service.schedule.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Programar Servicio">
+        <group>
+          <group string="Servicio">
+            <field name="service_order_id" readonly="1" invisible="not service_order_id"/>
+            <field name="slot_id" readonly="1" invisible="not slot_id"/>
+            <field name="partner_id" options="{'no_create': True}"/>
+            <field name="priority" widget="priority"/>
+          </group>
+          <group string="Fecha y Hora">
+            <field name="date_start"/>
+            <field name="date_end"/>
+            <field name="all_day"/>
+          </group>
+        </group>
+        <group>
+          <group string="Asignación">
+            <field name="vehicle_id" options="{'no_create': True}"/>
+            <field name="driver_id" options="{'no_create': True}"/>
+            <field name="pickup_location_id" options="{'no_create': True}"/>
+            <field name="destination_id" options="{'no_create': True}"/>
+          </group>
+          <group string="Residuos">
+            <field name="waste_type"/>
+            <field name="estimated_weight_kg"/>
+          </group>
+        </group>
+        <separator string="Recurrencia"/>
+        <group>
+          <group>
+            <field name="is_recurring"/>
+            <field name="service_frequency" invisible="not is_recurring"/>
+            <field name="recurrence_end_date" invisible="not is_recurring"/>
+          </group>
+        </group>
+        <group string="Notas">
+          <field name="notes" nolabel="1" placeholder="Instrucciones especiales..."/>
+        </group>
+        <footer>
+          <button name="action_confirm" string="Programar" type="object" class="btn-primary"/>
+          <button string="Cancelar" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+</odoo>

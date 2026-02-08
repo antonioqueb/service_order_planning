@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- Cron: Verificar permisos vencidos de vehículos -->
+    <record id="cron_check_vehicle_permits" model="ir.cron">
+      <field name="name">Verificar Permisos de Vehículos</field>
+      <field name="model_id" ref="model_fleet_vehicle_permit"/>
+      <field name="state">code</field>
+      <field name="code">model._cron_check_permit_expiry()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="active">1</field>
+    </record>
+
+    <!-- Cron: Verificar permisos vencidos de choferes -->
+    <record id="cron_check_driver_permits" model="ir.cron">
+      <field name="name">Verificar Permisos de Choferes</field>
+      <field name="model_id" ref="model_fleet_driver_permit"/>
+      <field name="state">code</field>
+      <field name="code">model._cron_check_driver_permit_expiry()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="active">1</field>
+    </record>
+
+  </data>
+</odoo>

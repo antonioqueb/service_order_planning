@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <!-- =========================================================
+       VISTA CALENDARIO (LA PRINCIPAL)
+       ========================================================= -->
+  <record id="view_planning_slot_calendar" model="ir.ui.view">
+    <field name="name">service.planning.slot.calendar</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <calendar string="Calendario de Servicios"
+                date_start="date_start"
+                date_stop="date_end"
+                color="color"
+                mode="week"
+                event_open_popup="1"
+                quick_create="0"
+                scales="day,week,month">
+        <field name="partner_id"/>
+        <field name="vehicle_id"/>
+        <field name="driver_id"/>
+        <field name="priority"/>
+        <field name="state"/>
+        <field name="waste_type"/>
+        <field name="service_order_id"/>
+      </calendar>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       VISTA LISTA
+       ========================================================= -->
+  <record id="view_planning_slot_list" model="ir.ui.view">
+    <field name="name">service.planning.slot.list</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <list string="Programación de Servicios" default_order="date_start asc"
+            decoration-muted="state == 'cancel'"
+            decoration-success="state == 'done'"
+            decoration-warning="state == 'in_progress'"
+            decoration-danger="priority in ['3','4']">
+        <field name="date_start" string="Inicio"/>
+        <field name="date_end" string="Fin"/>
+        <field name="partner_id" string="Cliente"/>
+        <field name="service_order_id" string="Orden"/>
+        <field name="vehicle_id" string="Vehículo"/>
+        <field name="driver_id" string="Chofer"/>
+        <field name="waste_type" string="Tipo Residuo" optional="show"/>
+        <field name="estimated_weight_kg" string="Peso Est. (Kg)" sum="Total" optional="show"/>
+        <field name="priority" widget="priority"/>
+        <field name="duration" string="Hrs" optional="show"/>
+        <field name="state" widget="badge"
+               decoration-info="state == 'draft'"
+               decoration-primary="state == 'scheduled'"
+               decoration-warning="state == 'in_progress'"
+               decoration-success="state == 'done'"
+               decoration-danger="state == 'cancel'"
+               decoration-muted="state == 'rescheduled'"/>
+      </list>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       VISTA FORMULARIO
+       ========================================================= -->
+  <record id="view_planning_slot_form" model="ir.ui.view">
+    <field name="name">service.planning.slot.form</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <form string="Slot de Planeación">
+        <header>
+          <button name="action_schedule" string="Programar" type="object"
+                  class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_start" string="Iniciar" type="object"
+                  class="btn-warning" invisible="state != 'scheduled'"/>
+          <button name="action_done" string="Completar" type="object"
+                  class="btn-success" invisible="state not in ['scheduled', 'in_progress']"/>
+          <button name="action_cancel" string="Cancelar" type="object"
+                  class="btn-secondary" invisible="state in ['done', 'cancel']"/>
+          <button name="action_reschedule" string="Reprogramar" type="object"
+                  class="btn-secondary" invisible="state in ['done', 'cancel', 'draft', 'rescheduled']"/>
+          <button name="action_reset_draft" string="Restablecer" type="object"
+                  class="btn-secondary" invisible="state not in ['cancel', 'rescheduled']"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,in_progress,done"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="Borrador" bg_color="text-bg-info" invisible="state != 'draft'"/>
+          <widget name="web_ribbon" title="Programado" bg_color="text-bg-primary" invisible="state != 'scheduled'"/>
+          <widget name="web_ribbon" title="En Proceso" bg_color="text-bg-warning" invisible="state != 'in_progress'"/>
+          <widget name="web_ribbon" title="Completado" bg_color="text-bg-success" invisible="state != 'done'"/>
+          <widget name="web_ribbon" title="Cancelado" bg_color="text-bg-danger" invisible="state != 'cancel'"/>
+          <widget name="web_ribbon" title="Reprogramado" bg_color="text-bg-secondary" invisible="state != 'rescheduled'"/>
+
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_service_order" type="object"
+                    class="oe_stat_button" icon="fa-file-text"
+                    invisible="not service_order_id">
+              <span class="o_stat_text">Orden de Servicio</span>
+            </button>
+            <button name="action_create_service_order" type="object"
+                    class="oe_stat_button" icon="fa-plus"
+                    invisible="service_order_id">
+              <span class="o_stat_text">Crear Orden</span>
+            </button>
+          </div>
+
+          <div class="oe_title">
+            <h1><field name="name" class="o_inline"/></h1>
+          </div>
+
+          <group>
+            <group string="Cliente y Servicio">
+              <field name="partner_id" options="{'no_create': True}"/>
+              <field name="service_order_id" options="{'no_create': True}"/>
+              <field name="sale_order_id" readonly="1"/>
+              <field name="priority" widget="priority"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+            </group>
+            <group string="Programación">
+              <field name="date_start"/>
+              <field name="date_end"/>
+              <field name="all_day"/>
+              <field name="duration" readonly="1"/>
+              <field name="date_deadline"/>
+            </group>
+          </group>
+
+          <notebook>
+            <page string="Asignación" name="assignment">
+              <group>
+                <group string="Vehículo y Chofer">
+                  <field name="vehicle_id" options="{'no_create': True}"/>
+                  <field name="driver_id" options="{'no_create': True}"/>
+                  <field name="team_member_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+                <group string="Ubicaciones">
+                  <field name="pickup_location_id" options="{'no_create': True}"/>
+                  <field name="destination_id" options="{'no_create': True}"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="Residuos" name="waste_info">
+              <group>
+                <group>
+                  <field name="waste_type"/>
+                  <field name="estimated_weight_kg"/>
+                  <field name="estimated_volume_m3"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="Recurrencia" name="recurrence">
+              <group>
+                <group>
+                  <field name="is_recurring"/>
+                  <field name="service_frequency" invisible="not is_recurring"/>
+                  <field name="recurrence_end_date" invisible="not is_recurring"/>
+                </group>
+                <group>
+                  <field name="parent_slot_id" readonly="1"/>
+                </group>
+              </group>
+              <button name="action_generate_recurring_slots"
+                      string="Generar Slots Recurrentes"
+                      type="object"
+                      class="btn-primary"
+                      invisible="not is_recurring or not service_frequency or not recurrence_end_date"/>
+              <field name="child_slot_ids" invisible="not child_slot_ids">
+                <list>
+                  <field name="date_start"/>
+                  <field name="date_end"/>
+                  <field name="vehicle_id"/>
+                  <field name="driver_id"/>
+                  <field name="state" widget="badge"/>
+                </list>
+              </field>
+            </page>
+
+            <page string="Notas" name="notes">
+              <group>
+                <field name="notes" placeholder="Notas de planeación..." nolabel="1"/>
+              </group>
+              <group string="Notas de Cierre" invisible="state != 'done'">
+                <field name="completion_notes" nolabel="1" placeholder="Observaciones al completar..."/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       VISTA BÚSQUEDA
+       ========================================================= -->
+  <record id="view_planning_slot_search" model="ir.ui.view">
+    <field name="name">service.planning.slot.search</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <search string="Buscar Programaciones">
+        <field name="partner_id" string="Cliente"/>
+        <field name="service_order_id" string="Orden"/>
+        <field name="vehicle_id" string="Vehículo"/>
+        <field name="driver_id" string="Chofer"/>
+        <field name="user_id" string="Responsable"/>
+        <separator/>
+        <filter string="Mis Programaciones" name="my_slots" domain="[('user_id', '=', uid)]"/>
+        <separator/>
+        <filter string="Borrador" name="draft" domain="[('state', '=', 'draft')]"/>
+        <filter string="Programados" name="scheduled" domain="[('state', '=', 'scheduled')]"/>
+        <filter string="En Proceso" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+        <filter string="Completados" name="done" domain="[('state', '=', 'done')]"/>
+        <filter string="Pendientes" name="pending" domain="[('state', 'in', ['draft', 'scheduled'])]"/>
+        <separator/>
+        <filter string="Urgente" name="urgent" domain="[('priority', 'in', ['3', '4'])]"/>
+        <filter string="Residuos Peligrosos" name="rp" domain="[('waste_type', '=', 'rp')]"/>
+        <separator/>
+        <filter string="Hoy" name="today" domain="[
+            ('date_start', '&gt;=', (context_today()).strftime('%%Y-%%m-%%d 00:00:00')),
+            ('date_start', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d 00:00:00'))
+        ]"/>
+        <filter string="Esta Semana" name="this_week" domain="[
+            ('date_start', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%%Y-%%m-%%d 00:00:00')),
+            ('date_start', '&lt;', (context_today() - datetime.timedelta(days=context_today().weekday()) + datetime.timedelta(days=7)).strftime('%%Y-%%m-%%d 00:00:00'))
+        ]"/>
+        <filter string="Fecha" name="filter_date" date="date_start"/>
+        <separator/>
+          <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+          <filter string="Vehículo" name="group_vehicle" context="{'group_by': 'vehicle_id'}"/>
+          <filter string="Chofer" name="group_driver" context="{'group_by': 'driver_id'}"/>
+          <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+          <filter string="Prioridad" name="group_priority" context="{'group_by': 'priority'}"/>
+          <filter string="Tipo Residuo" name="group_waste" context="{'group_by': 'waste_type'}"/>
+          <filter string="Día" name="group_day" context="{'group_by': 'date_start:day'}"/>
+          <filter string="Semana" name="group_week" context="{'group_by': 'date_start:week'}"/>
+          <filter string="Mes" name="group_month" context="{'group_by': 'date_start:month'}"/>
+          <filter string="Responsable" name="group_user" context="{'group_by': 'user_id'}"/>
+          <filter string="Frecuencia" name="group_frequency" context="{'group_by': 'service_frequency'}"/>
+      </search>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       VISTA PIVOT
+       ========================================================= -->
+  <record id="view_planning_slot_pivot" model="ir.ui.view">
+    <field name="name">service.planning.slot.pivot</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <pivot string="Análisis de Programación" sample="1">
+        <field name="partner_id" type="row"/>
+        <field name="date_start" interval="week" type="col"/>
+        <field name="estimated_weight_kg" type="measure"/>
+        <field name="duration" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       VISTA GRAPH
+       ========================================================= -->
+  <record id="view_planning_slot_graph" model="ir.ui.view">
+    <field name="name">service.planning.slot.graph</field>
+    <field name="model">service.planning.slot</field>
+    <field name="arch" type="xml">
+      <graph string="Servicios Programados" type="bar" sample="1">
+        <field name="date_start" interval="week"/>
+        <field name="estimated_weight_kg" type="measure"/>
+      </graph>
+    </field>
+  </record>
+
+  <!-- =========================================================
+       ACCIÓN PRINCIPAL - CALENDARIO COMO DEFAULT
+       ========================================================= -->
+  <record id="action_planning_slot" model="ir.actions.act_window">
+    <field name="name">Calendario de Servicios</field>
+    <field name="res_model">service.planning.slot</field>
+    <field name="view_mode">calendar,list,form,pivot,graph</field>
+    <field name="search_view_id" ref="view_planning_slot_search"/>
+    <field name="context">{'search_default_pending': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Programe su primer servicio en el calendario
+      </p>
+      <p>
+        Arrastre y suelte para programar, asigne vehículos y choferes,
+        y genere servicios recurrentes automáticamente.
+      </p>
+    </field>
+  </record>
+
+  <!-- Acción: Solo vista lista de hoy -->
+  <record id="action_planning_slot_today" model="ir.actions.act_window">
+    <field name="name">Servicios de Hoy</field>
+    <field name="res_model">service.planning.slot</field>
+    <field name="view_mode">list,form,calendar</field>
+    <field name="search_view_id" ref="view_planning_slot_search"/>
+    <field name="context">{'search_default_today': 1}</field>
+  </record>
+
+</odoo>

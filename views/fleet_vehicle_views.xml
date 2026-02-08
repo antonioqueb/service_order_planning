@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <!-- Extensión del formulario de vehículo -->
+  <record id="fleet_vehicle_form_planning" model="ir.ui.view">
+    <field name="name">fleet.vehicle.form.planning</field>
+    <field name="model">fleet.vehicle</field>
+    <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        
+        <!-- Pestaña: Transporte de Residuos -->
+        <page string="Transporte de Residuos" name="waste_transport">
+          <group>
+            <group string="Capacidades">
+              <field name="waste_transport_type"/>
+              <field name="vehicle_unit_type"/>
+              <field name="max_weight_kg"/>
+              <field name="max_volume_m3"/>
+            </group>
+            <group string="Remolques">
+              <field name="remolque_placa_1"/>
+              <field name="remolque_placa_2"/>
+            </group>
+          </group>
+          <group>
+            <group string="Permisos Regulatorios">
+              <field name="sct_permit_number"/>
+              <field name="semarnat_authorization"/>
+              <field name="insurance_policy"/>
+              <field name="insurance_expiry"/>
+            </group>
+            <group string="Disponibilidad">
+              <field name="is_available"/>
+              <field name="active_permit_count"/>
+              <field name="expiring_permit_count"/>
+            </group>
+          </group>
+        </page>
+
+        <!-- Pestaña: Permisos del Vehículo -->
+        <page string="Permisos y Autorizaciones" name="vehicle_permits">
+          <field name="permit_ids">
+            <list editable="bottom">
+              <field name="name"/>
+              <field name="permit_type"/>
+              <field name="number"/>
+              <field name="holder_type"/>
+              <field name="issuing_authority"/>
+              <field name="issue_date"/>
+              <field name="expiry_date"/>
+              <field name="state" widget="badge"
+                     decoration-success="state == 'active'"
+                     decoration-danger="state == 'expired'"
+                     decoration-info="state == 'draft'"
+                     decoration-warning="state == 'renewed'"/>
+            </list>
+          </field>
+        </page>
+
+        <!-- Pestaña: Historial de Servicios -->
+        <page string="Servicios Programados" name="planning_history">
+          <field name="planning_slot_ids">
+            <list>
+              <field name="date_start"/>
+              <field name="date_end"/>
+              <field name="partner_id"/>
+              <field name="driver_id"/>
+              <field name="service_order_id"/>
+              <field name="priority"/>
+              <field name="state" widget="badge"
+                     decoration-info="state == 'draft'"
+                     decoration-primary="state == 'scheduled'"
+                     decoration-warning="state == 'in_progress'"
+                     decoration-success="state == 'done'"
+                     decoration-danger="state == 'cancel'"/>
+            </list>
+          </field>
+        </page>
+
+      </notebook>
+    </field>
+  </record>
+
+</odoo>

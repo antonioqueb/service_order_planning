@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_planning_slot_user,service.planning.slot.user,model_service_planning_slot,group_service_planning_user,1,1,1,0
+access_planning_slot_manager,service.planning.slot.manager,model_service_planning_slot,group_service_planning_manager,1,1,1,1
+access_vehicle_permit_user,fleet.vehicle.permit.user,model_fleet_vehicle_permit,group_service_planning_user,1,1,1,0
+access_vehicle_permit_manager,fleet.vehicle.permit.manager,model_fleet_vehicle_permit,group_service_planning_manager,1,1,1,1
+access_driver_permit_user,fleet.driver.permit.user,model_fleet_driver_permit,group_service_planning_user,1,1,1,0
+access_driver_permit_manager,fleet.driver.permit.manager,model_fleet_driver_permit,group_service_planning_manager,1,1,1,1
+access_company_permit_user,service.company.permit.user,model_service_company_permit,group_service_planning_user,1,0,0,0
+access_company_permit_manager,service.company.permit.manager,model_service_company_permit,group_service_planning_manager,1,1,1,1
+access_client_authorization_user,service.client.authorization.user,model_service_client_authorization,group_service_planning_user,1,1,1,0
+access_client_authorization_manager,service.client.authorization.manager,model_service_client_authorization,group_service_planning_manager,1,1,1,1
+access_schedule_wizard_user,service.schedule.wizard.user,model_service_schedule_wizard,group_service_planning_user,1,1,1,1

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <!-- Extensión del formulario de contacto para choferes -->
+  <record id="res_partner_form_driver" model="ir.ui.view">
+    <field name="name">res.partner.form.driver</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page string="Datos de Chofer" name="driver_data" invisible="not is_driver">
+          <group>
+            <group string="Licencia">
+              <field name="is_driver"/>
+              <field name="driver_license_type"/>
+              <field name="driver_license_number"/>
+              <field name="driver_license_expiry"/>
+            </group>
+            <group string="Autorizaciones">
+              <field name="can_transport_rp"/>
+              <field name="can_transport_rme"/>
+              <field name="active_driver_permit_count"/>
+            </group>
+          </group>
+          <field name="driver_permit_ids">
+            <list editable="bottom">
+              <field name="name"/>
+              <field name="permit_type"/>
+              <field name="number"/>
+              <field name="issue_date"/>
+              <field name="expiry_date"/>
+              <field name="state" widget="badge"
+                     decoration-success="state == 'active'"
+                     decoration-danger="state == 'expired'"
+                     decoration-info="state == 'draft'"/>
+            </list>
+          </field>
+        </page>
+      </notebook>
+    </field>
+  </record>
+
+  <!-- Checkbox is_driver visible en la parte superior del contacto -->
+  <record id="res_partner_form_is_driver" model="ir.ui.view">
+    <field name="name">res.partner.form.is_driver.flag</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="priority">50</field>
+    <field name="arch" type="xml">
+      <field name="category_id" position="after">
+        <field name="is_driver"/>
+      </field>
+    </field>
+  </record>
+
+</odoo>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <!-- =========================================================
+       MENÚ DE PLANEACIÓN (bajo el menú raíz de Servicios)
+       ========================================================= -->
+
+  <!-- Submenú: Planeación -->
+  <menuitem id="menu_service_planning"
+            name="Planeación"
+            parent="service_order.menu_service_order_root"
+            sequence="5"/>
+
+  <menuitem id="menu_planning_calendar"
+            name="Calendario de Servicios"
+            parent="menu_service_planning"
+            action="action_planning_slot"
+            sequence="1"/>
+
+  <menuitem id="menu_planning_today"
+            name="Servicios de Hoy"
+            parent="menu_service_planning"
+            action="action_planning_slot_today"
+            sequence="2"/>
+
+  <!-- =========================================================
+       MENÚ DE PERMISOS Y AUTORIZACIONES
+       ========================================================= -->
+  <menuitem id="menu_service_permits"
+            name="Permisos y Autorizaciones"
+            parent="service_order.menu_service_order_root"
+            sequence="15"/>
+
+  <menuitem id="menu_company_permits"
+            name="Permisos de Empresa"
+            parent="menu_service_permits"
+            action="action_company_permit"
+            sequence="1"/>
+
+  <menuitem id="menu_vehicle_permits"
+            name="Permisos de Vehículos"
+            parent="menu_service_permits"
+            action="action_vehicle_permits"
+            sequence="2"/>
+
+  <menuitem id="menu_driver_permits"
+            name="Permisos de Choferes"
+            parent="menu_service_permits"
+            action="action_driver_permits"
+            sequence="3"/>
+
+  <menuitem id="menu_client_authorizations"
+            name="Autorizaciones de Clientes"
+            parent="menu_service_permits"
+            action="action_client_authorization"
+            sequence="4"/>
+
+</odoo>
