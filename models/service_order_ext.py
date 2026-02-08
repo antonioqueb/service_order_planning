@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 
 
 class ServiceOrder(models.Model):
@@ -11,7 +10,7 @@ class ServiceOrder(models.Model):
     # =========================================================
     planning_slot_ids = fields.One2many(
         'service.planning.slot', 'service_order_id',
-        string='Programaciones',
+        string='Programación',
     )
     planning_slot_count = fields.Integer(
         compute='_compute_planning_slot_count',
@@ -24,14 +23,10 @@ class ServiceOrder(models.Model):
     fleet_vehicle_id = fields.Many2one(
         'fleet.vehicle', string='Vehículo (Flota)',
         tracking=True,
-        help='Vehículo del módulo de Flota asignado a esta orden.',
     )
-
-    # Datos propagados del vehículo
     vehicle_license_plate = fields.Char(
         related='fleet_vehicle_id.license_plate',
-        string='Placa Vehículo (Flota)',
-        store=True,
+        string='Placa Vehículo (Flota)', store=True,
     )
 
     @api.depends('planning_slot_ids')
@@ -43,36 +38,21 @@ class ServiceOrder(models.Model):
     # ACCIONES
     # =========================================================
     def action_view_planning_slots(self):
+        """Ver calendario completo de la cotización de esta OS."""
         self.ensure_one()
+        domain = ['|',
+            ('service_order_id', '=', self.id),
+            ('sale_order_id', '=', self.sale_order_id.id),
+        ] if self.sale_order_id else [('service_order_id', '=', self.id)]
+
         return {
-            'name': _('Programaciones de %s') % self.name,
+            'name': _('Calendario de Servicios'),
             'type': 'ir.actions.act_window',
             'res_model': 'service.planning.slot',
             'view_mode': 'calendar,list,form',
-            'domain': [('service_order_id', '=', self.id)],
+            'domain': domain,
             'context': {
-                'default_service_order_id': self.id,
-                'default_partner_id': self.partner_id.id,
-            },
-        }
-
-    def action_schedule_service(self):
-        """Abre el wizard para programar este servicio en el calendario."""
-        self.ensure_one()
-        return {
-            'name': _('Programar Servicio'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.schedule.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_service_order_id': self.id,
-                'default_partner_id': self.partner_id.id,
-                'default_driver_id': self.chofer_id.id if self.chofer_id else False,
-                'default_pickup_location_id': self.pickup_location_id.id if self.pickup_location_id else False,
-                'default_destination_id': self.destinatario_id.id if self.destinatario_id else False,
-                'default_service_frequency': self.service_frequency,
-                'default_estimated_weight_kg': self.total_weight_kg,
+                'default_sale_order_id': self.sale_order_id.id if self.sale_order_id else False,
             },
         }
 
@@ -90,6 +70,12 @@ class ServiceOrder(models.Model):
                     self.remolque1 = v.remolque_placa_1
                 if not self.remolque2:
                     self.remolque2 = v.remolque_placa_2
-            # Auto-asignar chofer si el vehículo tiene uno
+            # Auto-asignar chofer del vehículo
             if v.driver_id and not self.chofer_id:
                 self.chofer_id = v.driver_id
+
+    @api.onchange('chofer_id')
+    def _onchange_chofer_id_driver_check(self):
+        """Marcar automáticamente como is_driver si se asigna como chofer."""
+        if self.chofer_id and hasattr(self.chofer_id, 'is_driver') and not self.chofer_id.is_driver:
+            self.chofer_id.sudo().write({'is_driver': True})

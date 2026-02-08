@@ -84,7 +84,7 @@ class FleetVehicle(models.Model):
         for vehicle in self:
             busy_slots = self.env['service.planning.slot'].search_count([
                 ('vehicle_id', '=', vehicle.id),
-                ('date_start', '<', today_end),
+                ('date_planned', '<', today_end),
                 ('date_end', '>', today_start),
                 ('state', 'not in', ['cancel', 'done']),
             ])
@@ -129,16 +129,13 @@ class FleetVehiclePermit(models.Model):
 
     @api.model
     def _cron_check_permit_expiry(self):
-        """Cron job para marcar permisos vencidos y notificar próximos a vencer."""
         today = fields.Date.today()
-        # Marcar vencidos
         expired = self.search([
             ('state', '=', 'active'),
             ('expiry_date', '<', today),
         ])
         expired.write({'state': 'expired'})
 
-        # Notificar próximos a vencer (30 días)
         soon = today + timedelta(days=30)
         expiring = self.search([
             ('state', '=', 'active'),

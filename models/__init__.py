@@ -4,3 +4,4 @@ from . import fleet_driver_permit
 from . import service_order_planning
 from . import service_planning_slot
 from . import service_order_ext
+from . import sale_order_planning

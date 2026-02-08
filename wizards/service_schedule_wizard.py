@@ -6,17 +6,18 @@ from datetime import timedelta
 
 class ServiceScheduleWizard(models.TransientModel):
     _name = 'service.schedule.wizard'
-    _description = 'Asistente para Programar Servicio'
+    _description = 'Asistente para Programar Servicios'
 
-    # Contexto
-    service_order_id = fields.Many2one('service.order', string='Orden de Servicio')
+    # Origen
+    sale_order_id = fields.Many2one('sale.order', string='Cotización', required=True)
     slot_id = fields.Many2one('service.planning.slot', string='Slot a Reprogramar')
-    partner_id = fields.Many2one('res.partner', string='Cliente', required=True)
+    partner_id = fields.Many2one(
+        related='sale_order_id.partner_id', string='Cliente', readonly=True,
+    )
 
     # Programación
     date_start = fields.Datetime(string='Fecha/Hora Inicio', required=True, default=fields.Datetime.now)
-    date_end = fields.Datetime(string='Fecha/Hora Fin', required=True)
-    all_day = fields.Boolean(string='Todo el Día')
+    date_end = fields.Datetime(string='Fecha/Hora Fin')
 
     # Asignación
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehículo')
@@ -27,13 +28,9 @@ class ServiceScheduleWizard(models.TransientModel):
     pickup_location_id = fields.Many2one('res.partner', string='Ubicación Recolección')
     destination_id = fields.Many2one('res.partner', string='Destino Final')
 
-    # Prioridad
     priority = fields.Selection([
-        ('0', 'Normal'),
-        ('1', 'Baja'),
-        ('2', 'Media'),
-        ('3', 'Alta'),
-        ('4', 'Urgente'),
+        ('0', 'Normal'), ('1', 'Baja'), ('2', 'Media'),
+        ('3', 'Alta'), ('4', 'Urgente'),
     ], default='0', string='Prioridad')
 
     # Recurrencia
@@ -52,16 +49,19 @@ class ServiceScheduleWizard(models.TransientModel):
     ], string='Frecuencia')
     recurrence_end_date = fields.Date(string='Repetir Hasta')
 
-    # Residuos
     waste_type = fields.Selection([
         ('rp', 'Residuos Peligrosos'),
         ('rme', 'Residuos de Manejo Especial'),
         ('rsu', 'Residuos Sólidos Urbanos'),
         ('mixto', 'Mixto'),
     ], string='Tipo de Residuo')
-    estimated_weight_kg = fields.Float(string='Peso Estimado (Kg)')
 
     notes = fields.Text(string='Notas')
+    auto_create_orders = fields.Boolean(
+        string='Crear Órdenes de Servicio Inmediatamente',
+        default=False,
+        help='Si se marca, además de programar los slots, crea las órdenes de servicio automáticamente.',
+    )
 
     @api.onchange('date_start')
     def _onchange_date_start(self):
@@ -75,25 +75,24 @@ class ServiceScheduleWizard(models.TransientModel):
                 self.driver_id = self.vehicle_id.driver_id
 
     def action_confirm(self):
-        """Crea el slot de planeación (o reprograma uno existente)."""
         self.ensure_one()
+
+        if not self.date_end:
+            self.date_end = self.date_start + timedelta(hours=2)
 
         if self.date_end <= self.date_start:
             raise UserError(_('La fecha de fin debe ser posterior al inicio.'))
 
         vals = {
-            'partner_id': self.partner_id.id,
-            'service_order_id': self.service_order_id.id if self.service_order_id else False,
-            'date_start': self.date_start,
+            'sale_order_id': self.sale_order_id.id,
+            'date_planned': self.date_start,
             'date_end': self.date_end,
-            'all_day': self.all_day,
             'vehicle_id': self.vehicle_id.id if self.vehicle_id else False,
             'driver_id': self.driver_id.id if self.driver_id else False,
             'pickup_location_id': self.pickup_location_id.id if self.pickup_location_id else False,
             'destination_id': self.destination_id.id if self.destination_id else False,
             'priority': self.priority,
             'waste_type': self.waste_type,
-            'estimated_weight_kg': self.estimated_weight_kg,
             'notes': self.notes,
             'is_recurring': self.is_recurring,
             'service_frequency': self.service_frequency,
@@ -101,23 +100,32 @@ class ServiceScheduleWizard(models.TransientModel):
             'state': 'scheduled' if self.vehicle_id and self.driver_id else 'draft',
         }
 
+        # Si es reprogramación
         if self.slot_id:
-            # Reprogramar: marcar viejo como rescheduled
             self.slot_id.write({'state': 'rescheduled'})
             vals['parent_slot_id'] = self.slot_id.id
-            new_slot = self.env['service.planning.slot'].create(vals)
-        else:
-            new_slot = self.env['service.planning.slot'].create(vals)
 
-        # Si pidió recurrencia, generar automáticamente
+        new_slot = self.env['service.planning.slot'].create(vals)
+
+        # Generar recurrencia
+        all_slots = new_slot
         if self.is_recurring and self.service_frequency and self.recurrence_end_date:
             new_slot.action_generate_recurring_slots()
+            all_slots = new_slot | new_slot.child_slot_ids
+
+        # Auto-crear órdenes si se pidió
+        if self.auto_create_orders:
+            schedulable = all_slots.filtered(
+                lambda s: not s.service_order_id and s.state in ('draft', 'scheduled')
+            )
+            if schedulable:
+                schedulable.action_mass_create_service_orders()
 
         return {
-            'name': _('Programación'),
+            'name': _('Programación de Servicios'),
             'type': 'ir.actions.act_window',
             'res_model': 'service.planning.slot',
             'view_mode': 'calendar,list,form',
-            'domain': [('id', 'in', (new_slot | new_slot.child_slot_ids).ids)] if new_slot.child_slot_ids else [('id', '=', new_slot.id)],
+            'domain': [('sale_order_id', '=', self.sale_order_id.id)],
             'target': 'current',
         }

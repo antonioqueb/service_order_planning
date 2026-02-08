@@ -8,28 +8,18 @@
     <field name="inherit_id" ref="service_order.view_service_order_form"/>
     <field name="arch" type="xml">
 
-      <!-- Botón de Programar en el header -->
-      <xpath expr="//header/field[@name='state']" position="before">
-        <button name="action_schedule_service"
-                string="📅 Programar"
-                type="object"
-                class="btn-primary"
-                invisible="state in ['cancel']"/>
-      </xpath>
-
-      <!-- Stat button de programaciones -->
+      <!-- Stat button: ver calendario completo -->
       <xpath expr="//div[@name='button_box']" position="inside">
         <button name="action_view_planning_slots" type="object"
-                class="oe_stat_button" icon="fa-calendar"
-                invisible="planning_slot_count == 0">
-          <field name="planning_slot_count" widget="statinfo" string="Programaciones"/>
+                class="oe_stat_button" icon="fa-calendar">
+          <span class="o_stat_text">Calendario</span>
         </button>
       </xpath>
 
-      <!-- Campo de Vehículo de Flota en la pestaña de Logística -->
-      <xpath expr="//page[@name='page_logistics']//field[@name='camion']" position="before">
-        <field name="fleet_vehicle_id" 
-               string="Vehículo (Flota)" 
+      <!-- Campo de Vehículo de Flota ANTES de camion en logística -->
+      <xpath expr="//field[@name='camion']" position="before">
+        <field name="fleet_vehicle_id"
+               string="Vehículo (Flota)"
                options="{'no_create': True}"
                placeholder="Seleccionar vehículo de flota..."/>
         <field name="vehicle_license_plate" readonly="1" invisible="not fleet_vehicle_id"/>
@@ -38,14 +28,13 @@
     </field>
   </record>
 
-  <!-- Extensión de la vista lista para mostrar columna de programaciones -->
+  <!-- Extensión de la vista lista -->
   <record id="view_service_order_list_planning" model="ir.ui.view">
     <field name="name">service.order.list.planning</field>
     <field name="model">service.order</field>
     <field name="inherit_id" ref="service_order.view_service_order_list"/>
     <field name="arch" type="xml">
       <field name="state" position="before">
-        <field name="planning_slot_count" string="📅" optional="show"/>
         <field name="fleet_vehicle_id" string="Vehículo" optional="hide"/>
       </field>
     </field>

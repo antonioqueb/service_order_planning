@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  <!-- =========================================================
-       MENÚ DE PLANEACIÓN (bajo el menú raíz de Servicios)
-       ========================================================= -->
-
-  <!-- Submenú: Planeación -->
   <menuitem id="menu_service_planning"
             name="Planeación"
             parent="service_order.menu_service_order_root"
@@ -23,9 +18,13 @@
             action="action_planning_slot_today"
             sequence="2"/>
 
-  <!-- =========================================================
-       MENÚ DE PERMISOS Y AUTORIZACIONES
-       ========================================================= -->
+  <menuitem id="menu_planning_pending"
+            name="Pendientes de Crear OS"
+            parent="menu_service_planning"
+            action="action_planning_slot_pending"
+            sequence="3"/>
+
+  <!-- Permisos y Autorizaciones -->
   <menuitem id="menu_service_permits"
             name="Permisos y Autorizaciones"
             parent="service_order.menu_service_order_root"

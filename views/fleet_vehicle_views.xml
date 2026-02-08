@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  <!-- Extensión del formulario de vehículo -->
   <record id="fleet_vehicle_form_planning" model="ir.ui.view">
     <field name="name">fleet.vehicle.form.planning</field>
     <field name="model">fleet.vehicle</field>
     <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
     <field name="arch" type="xml">
       <notebook position="inside">
-        
-        <!-- Pestaña: Transporte de Residuos -->
+
         <page string="Transporte de Residuos" name="waste_transport">
           <group>
             <group string="Capacidades">
@@ -38,7 +36,6 @@
           </group>
         </page>
 
-        <!-- Pestaña: Permisos del Vehículo -->
         <page string="Permisos y Autorizaciones" name="vehicle_permits">
           <field name="permit_ids">
             <list editable="bottom">
@@ -58,11 +55,10 @@
           </field>
         </page>
 
-        <!-- Pestaña: Historial de Servicios -->
         <page string="Servicios Programados" name="planning_history">
           <field name="planning_slot_ids">
             <list>
-              <field name="date_start"/>
+              <field name="date_planned"/>
               <field name="date_end"/>
               <field name="partner_id"/>
               <field name="driver_id"/>
@@ -71,8 +67,7 @@
               <field name="state" widget="badge"
                      decoration-info="state == 'draft'"
                      decoration-primary="state == 'scheduled'"
-                     decoration-warning="state == 'in_progress'"
-                     decoration-success="state == 'done'"
+                     decoration-success="state in ['confirmed', 'done']"
                      decoration-danger="state == 'cancel'"/>
             </list>
           </field>

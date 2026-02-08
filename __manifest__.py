@@ -1,10 +1,10 @@
 {
     'name': 'Service Order Planning & Fleet',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Services',
     'summary': 'Planeación logística, calendario y flota para Órdenes de Servicio',
     'author': 'Alphaqueb Consulting',
-    'depends': ['service_order', 'fleet', 'calendar'],
+    'depends': ['service_order', 'sale_crm_propagate', 'fleet'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -15,6 +15,7 @@
         'views/service_order_planning_views.xml',
         'views/service_planning_calendar_views.xml',
         'views/service_planning_dashboard_views.xml',
+        'views/sale_order_planning_views.xml',
         'views/menu_items.xml',
     ],
     'application': False,

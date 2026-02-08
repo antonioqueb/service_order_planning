@@ -10,3 +10,5 @@ access_company_permit_manager,service.company.permit.manager,model_service_compa
 access_client_authorization_user,service.client.authorization.user,model_service_client_authorization,group_service_planning_user,1,1,1,0
 access_client_authorization_manager,service.client.authorization.manager,model_service_client_authorization,group_service_planning_manager,1,1,1,1
 access_schedule_wizard_user,service.schedule.wizard.user,model_service_schedule_wizard,group_service_planning_user,1,1,1,1
+access_schedule_wizard_sales,service.schedule.wizard.sales,model_service_schedule_wizard,sales_team.group_sale_salesman,1,1,1,1
+access_planning_slot_sales,service.planning.slot.sales,model_service_planning_slot,sales_team.group_sale_salesman,1,1,1,0
