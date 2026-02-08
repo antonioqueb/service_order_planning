@@ -23,7 +23,6 @@ class ServiceScheduleWizard(models.TransientModel):
     vehicle_id = fields.Many2one('fleet.vehicle', string='Vehículo')
     driver_id = fields.Many2one(
         'res.partner', string='Chofer',
-        domain="[('is_driver', '=', True)]",
     )
     pickup_location_id = fields.Many2one('res.partner', string='Ubicación Recolección')
     destination_id = fields.Many2one('res.partner', string='Destino Final')
@@ -70,9 +69,13 @@ class ServiceScheduleWizard(models.TransientModel):
 
     @api.onchange('vehicle_id')
     def _onchange_vehicle_id(self):
-        if self.vehicle_id and self.vehicle_id.driver_id and not self.driver_id:
-            if hasattr(self.vehicle_id.driver_id, 'is_driver') and self.vehicle_id.driver_id.is_driver:
-                self.driver_id = self.vehicle_id.driver_id
+        """Al seleccionar vehículo, auto-asignar conductor y marcarlo como is_driver."""
+        if self.vehicle_id and self.vehicle_id.driver_id:
+            driver = self.vehicle_id.driver_id
+            # Marcar como is_driver si no lo está
+            if hasattr(driver, 'is_driver') and not driver.is_driver:
+                driver.sudo().write({'is_driver': True})
+            self.driver_id = driver
 
     def action_confirm(self):
         self.ensure_one()
@@ -82,6 +85,10 @@ class ServiceScheduleWizard(models.TransientModel):
 
         if self.date_end <= self.date_start:
             raise UserError(_('La fecha de fin debe ser posterior al inicio.'))
+
+        # Asegurar que el chofer seleccionado esté marcado como is_driver
+        if self.driver_id and hasattr(self.driver_id, 'is_driver') and not self.driver_id.is_driver:
+            self.driver_id.sudo().write({'is_driver': True})
 
         vals = {
             'sale_order_id': self.sale_order_id.id,

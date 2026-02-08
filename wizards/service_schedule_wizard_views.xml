@@ -21,7 +21,8 @@
         <group>
           <group string="Asignación">
             <field name="vehicle_id" options="{'no_create': True}"/>
-            <field name="driver_id" options="{'no_create': True}"/>
+            <field name="driver_id" options="{'no_create': True}"
+                   context="{'default_is_driver': True}"/>
             <field name="pickup_location_id" options="{'no_create': True}"/>
             <field name="destination_id" options="{'no_create': True}"/>
           </group>
