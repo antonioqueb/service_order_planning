@@ -27,7 +27,7 @@
       </xpath>
 
       <!-- Campo de Vehículo de Flota en la pestaña de Logística -->
-      <xpath expr="//page[@name='page_logistics']//group/group[@string='Unidad y Operador']/field[@name='camion']" position="before">
+      <xpath expr="//page[@name='page_logistics']//field[@name='camion']" position="before">
         <field name="fleet_vehicle_id" 
                string="Vehículo (Flota)" 
                options="{'no_create': True}"
