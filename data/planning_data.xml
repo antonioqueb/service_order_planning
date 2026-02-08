@@ -10,7 +10,6 @@
       <field name="code">model._cron_check_permit_expiry()</field>
       <field name="interval_number">1</field>
       <field name="interval_type">days</field>
-      <field name="numbercall">-1</field>
       <field name="active">1</field>
     </record>
 
@@ -22,7 +21,6 @@
       <field name="code">model._cron_check_driver_permit_expiry()</field>
       <field name="interval_number">1</field>
       <field name="interval_type">days</field>
-      <field name="numbercall">-1</field>
       <field name="active">1</field>
     </record>
 
