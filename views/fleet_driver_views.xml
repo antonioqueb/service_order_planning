@@ -47,9 +47,12 @@
   <field name="inherit_id" ref="base.view_partner_form"/>
   <field name="priority">50</field>
   <field name="arch" type="xml">
-    <widget name="web_ribbon" position="before">
-      <field name="is_driver" widget="boolean_toggle" nolabel="0"/>
-    </widget>
+    <xpath expr="//div[hasclass('o_field_widget')][field/@name='company_type']" position="after">
+      <div class="o_field_widget d-flex align-items-center ms-3">
+        <field name="is_driver" widget="boolean_toggle"/>
+        <span class="ms-1">Es Chofer</span>
+      </div>
+    </xpath>
   </field>
 </record>
 
