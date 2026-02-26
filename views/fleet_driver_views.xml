@@ -47,10 +47,13 @@
     <field name="inherit_id" ref="base.view_partner_form"/>
     <field name="priority">50</field>
     <field name="arch" type="xml">
-      <xpath expr="//field[@name='company_type']" position="after">
-        <div class="d-flex align-items-center gap-2 mt-1">
-          <field name="is_driver" widget="boolean_toggle" nolabel="1"/>
-          <span class="fw-bold">Es Chofer</span>
+      <xpath expr="//field[@name='company_type']" position="replace">
+        <div class="d-flex align-items-center gap-3">
+          <field name="company_type" widget="radio" options="{'horizontal': true}"/>
+          <div class="d-flex align-items-center gap-1">
+            <field name="is_driver" widget="boolean_toggle" nolabel="1"/>
+            <span class="o_form_label">Es Chofer</span>
+          </div>
         </div>
       </xpath>
     </field>
