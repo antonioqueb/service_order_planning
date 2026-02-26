@@ -59,25 +59,35 @@ class ServiceOrder(models.Model):
     @api.onchange('fleet_vehicle_id')
     def _onchange_fleet_vehicle(self):
         """Propagar datos del vehículo de flota a los campos existentes."""
-        if self.fleet_vehicle_id:
-            v = self.fleet_vehicle_id
-            if not self.camion:
-                self.camion = v.display_name
-            if not self.numero_placa:
-                self.numero_placa = v.license_plate
-            if hasattr(v, 'remolque_placa_1'):
-                if not self.remolque1:
-                    self.remolque1 = v.remolque_placa_1
-                if not self.remolque2:
-                    self.remolque2 = v.remolque_placa_2
-            # Auto-asignar chofer del vehículo y marcarlo como is_driver
-            if v.driver_id and not self.chofer_id:
-                if hasattr(v.driver_id, 'is_driver') and not v.driver_id.is_driver:
-                    v.driver_id.sudo().write({'is_driver': True})
-                self.chofer_id = v.driver_id
+        if not self.fleet_vehicle_id:
+            return
+        
+        v = self.fleet_vehicle_id
+        
+        # Siempre sobreescribir con datos del vehículo seleccionado
+        self.camion = v.display_name
+        self.numero_placa = v.license_plate or ''
+        
+        if hasattr(v, 'remolque_placa_1'):
+            self.remolque1 = v.remolque_placa_1 or ''
+            self.remolque2 = v.remolque_placa_2 or ''
+        
+        # Auto-asignar chofer del vehículo
+        if v.driver_id:
+            self.chofer_id = v.driver_id
 
     @api.onchange('chofer_id')
     def _onchange_chofer_id_driver_check(self):
         """Marcar automáticamente como is_driver si se asigna como chofer."""
-        if self.chofer_id and hasattr(self.chofer_id, 'is_driver') and not self.chofer_id.is_driver:
-            self.chofer_id.sudo().write({'is_driver': True})
+        if self.chofer_id and not self.chofer_id.is_driver:
+            # En onchange solo actualizamos el valor en memoria para mostrar advertencia
+            # El write real se hace en el override de create/write
+            return {
+                'warning': {
+                    'title': _('Chofer no marcado'),
+                    'message': _(
+                        'El contacto "%s" no está marcado como Chofer. '
+                        'Se marcará automáticamente al guardar.'
+                    ) % self.chofer_id.name,
+                }
+            }

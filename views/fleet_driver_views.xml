@@ -42,15 +42,15 @@
 
   <!-- Checkbox is_driver visible en la parte superior del contacto -->
   <record id="res_partner_form_is_driver" model="ir.ui.view">
-    <field name="name">res.partner.form.is_driver.flag</field>
-    <field name="model">res.partner</field>
-    <field name="inherit_id" ref="base.view_partner_form"/>
-    <field name="priority">50</field>
-    <field name="arch" type="xml">
-      <field name="category_id" position="after">
-        <field name="is_driver"/>
-      </field>
+  <field name="name">res.partner.form.is_driver.flag</field>
+  <field name="model">res.partner</field>
+  <field name="inherit_id" ref="base.view_partner_form"/>
+  <field name="priority">50</field>
+  <field name="arch" type="xml">
+    <field name="company_type" position="after">
+      <field name="is_driver" widget="boolean_toggle"/>
     </field>
-  </record>
+  </field>
+</record>
 
 </odoo>
