@@ -1,50 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-  <!-- Extensión del formulario de Orden de Servicio -->
+<!-- Extensión del formulario de Orden de Servicio -->
   <record id="view_service_order_form_planning" model="ir.ui.view">
     <field name="name">service.order.form.planning</field>
     <field name="model">service.order</field>
     <field name="inherit_id" ref="service_order.view_service_order_form"/>
     <field name="arch" type="xml">
-
-      <!-- Stat button: ver calendario completo -->
+<!-- Stat button: ver calendario completo -->
       <xpath expr="//div[@name='button_box']" position="inside">
         <button name="action_view_planning_slots" type="object"
                 class="oe_stat_button" icon="fa-calendar">
           <span class="o_stat_text">Calendario</span>
         </button>
       </xpath>
-
-      <!-- Campo de Vehículo de Flota ANTES de camion en logística -->
-      <xpath expr="//field[@name='camion']" position="before">
-        <field name="fleet_vehicle_id"
-               string="Vehículo (Flota)"
-               options="{'no_create': True}"
-               placeholder="Seleccionar vehículo de flota..."/>
-        <field name="vehicle_license_plate" readonly="1" invisible="not fleet_vehicle_id"/>
+<!-- Campos de flota legacy: se mantienen invisibles para no perder datos,
+     la selección ahora se hace desde vehicle_id en el módulo base -->
+      <xpath expr="//field[@name='vehicle_id']" position="after">
+        <field name="fleet_vehicle_id" invisible="1"/>
+        <field name="vehicle_license_plate" invisible="1"/>
       </xpath>
-
-      <!-- Sobreescribir chofer_id para quitar domain restrictivo y permitir selección -->
+<!-- Sobreescribir chofer_id para quitar domain restrictivo y permitir selección -->
       <xpath expr="//field[@name='chofer_id']" position="attributes">
         <attribute name="domain">[('is_driver', '=', True)]</attribute>
         <attribute name="context">{'default_is_driver': True}</attribute>
         <attribute name="options">{'no_quick_create': True}</attribute>
       </xpath>
-
     </field>
   </record>
-
-  <!-- Extensión de la vista lista -->
+<!-- Extensión de la vista lista -->
   <record id="view_service_order_list_planning" model="ir.ui.view">
     <field name="name">service.order.list.planning</field>
     <field name="model">service.order</field>
     <field name="inherit_id" ref="service_order.view_service_order_list"/>
     <field name="arch" type="xml">
       <field name="state" position="before">
-        <field name="fleet_vehicle_id" string="Vehículo" optional="hide"/>
+        <field name="vehicle_id" string="Vehículo" optional="hide"/>
       </field>
     </field>
   </record>
-
 </odoo>
