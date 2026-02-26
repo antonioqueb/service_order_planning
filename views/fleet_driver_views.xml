@@ -47,9 +47,9 @@
   <field name="inherit_id" ref="base.view_partner_form"/>
   <field name="priority">50</field>
   <field name="arch" type="xml">
-    <field name="company_type" position="after">
-      <field name="is_driver" widget="boolean_toggle"/>
-    </field>
+    <widget name="web_ribbon" position="before">
+      <field name="is_driver" widget="boolean_toggle" nolabel="0"/>
+    </widget>
   </field>
 </record>
 
